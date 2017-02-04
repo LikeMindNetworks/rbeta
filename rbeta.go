@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"fmt"
-	// "reflect"
 
 	"gopkg.in/alecthomas/kingpin.v2"
 
@@ -14,14 +13,18 @@ const Version = "0.0.1"
 
 var (
 	rbeta = kingpin.New("rbeta", "rbeta")
-	cmdInit = initCmd.Command(rbeta)
 )
 
 func main() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("Error: %s \n", r)
+		}
+	}()
+
 	rbeta.Version(Version)
 
-	switch kingpin.MustParse(rbeta.Parse(os.Args[1:])) {
-	case cmdInit.FullCommand():
-		fmt.Printf("!")
-	}
+	initCmd.ConfigCommand(rbeta, "init")
+
+	kingpin.MustParse(rbeta.Parse(os.Args[1:]))
 }
