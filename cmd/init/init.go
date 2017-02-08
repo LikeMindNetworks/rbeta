@@ -12,12 +12,28 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 )
 
-type Init struct {
+type InitCmd struct {
 	namespace string
 	dryrun bool
 }
 
-func (init *Init) run(ctx *kingpin.ParseContext) (err error) {
+func (cmd *InitCmd) Bind(app *kingpin.Application, name string) (clause *kingpin.CmdClause) {
+	clause = app.Command(name, "init rbeta").Action(cmd.run);
+
+	clause.
+		Flag(
+			"namespace", "Name space for the rbeta deployment.",
+		).Short('n').Required().StringVar(&cmd.namespace)
+
+	clause.
+		Flag(
+			"dryrun", "dryrun the init process.",
+		).Short('d').BoolVar(&cmd.dryrun)
+
+	return
+}
+
+func (cmd *InitCmd) run(ctx *kingpin.ParseContext) (err error) {
 	// 0) check if terraform is present
 	terraform.MustExists()
 
@@ -32,7 +48,8 @@ func (init *Init) run(ctx *kingpin.ParseContext) (err error) {
 		SharedConfigState: session.SharedConfigEnable,
 	})
 	creds, err := sess.Config.Credentials.Get()
-	fmt.Printf("%s \n", creds)
+	fmt.Printf("%s \n", creds.AccessKeyID)
+	fmt.Printf("%s \n", creds.SecretAccessKey)
 	fmt.Printf("%s \n", *sess.Config.Region)
 
 	// 2) create terraform config
@@ -42,22 +59,4 @@ func (init *Init) run(ctx *kingpin.ParseContext) (err error) {
 	// 4) execute the terraform
 
 	return err
-}
-
-func ConfigCommand(rbeta *kingpin.Application, cmdName string) *kingpin.CmdClause {
-	init := &Init{}
-
-	cmd := rbeta.Command(cmdName, "init rbeta").Action(init.run);
-
-	cmd.
-		Flag(
-			"namespace", "Name space for the rbeta deployment.",
-		).Short('n').Required().StringVar(&init.namespace)
-
-	cmd.
-		Flag(
-			"dryrun", "dryrun the init process.",
-		).Short('d').BoolVar(&init.dryrun)
-
-	return cmd
 }

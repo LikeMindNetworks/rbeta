@@ -6,13 +6,16 @@ import (
 
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	initCmd "github.com/likemindnetworks/rbeta/cmd/init"
+	I "github.com/likemindnetworks/rbeta/cmd/init"
+	R "github.com/likemindnetworks/rbeta/cmd/reducer"
 )
 
 const Version = "0.0.1"
 
 var (
 	rbeta = kingpin.New("rbeta", "rbeta")
+	initCmd = &I.InitCmd{}
+	mapCmd = &R.MapCmd{}
 )
 
 func main() {
@@ -24,7 +27,8 @@ func main() {
 
 	rbeta.Version(Version)
 
-	initCmd.ConfigCommand(rbeta, "init")
+	initCmd.Bind(rbeta, "init")
+	mapCmd.Bind(rbeta, "map")
 
 	kingpin.MustParse(rbeta.Parse(os.Args[1:]))
 }
