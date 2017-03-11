@@ -25,12 +25,7 @@ func (cmd *MapCmd) Bind(app *kingpin.Application, name string) (clause *kingpin.
 func (cmd *MapCmd) run(ctx *kingpin.ParseContext) (err error) {
 	// add new reducer
 
-	// start data pipeline
-
-	// scan the exported table
-	// and populate the sink by stream scanned events into the new reducer
-
-	// clean up pipeline
+	// start a map task lambda that re-insert each record
 
 	return
 }
